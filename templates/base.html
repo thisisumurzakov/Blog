@@ -1,0 +1,32 @@
+{% load static %}
+{% load blog_tags %}
+<!DOCTYPE html>
+<html>
+    <head>
+         <title>{% block title %}{% endblock %}</title>
+         <link href="{% static 'css/blog.css' %}" rel="stylesheet">
+    </head>
+    <body>
+         <div id="content">
+         {% block content %}{% endblock %}
+         </div>
+         <div id="sidebar">
+             <h2 style="text-shadow: 1px 1px black;"><a href="/">My blog</a></h2>
+             <h1>Search for posts</h1>
+             <form action="{% url 'post_search' %}" method="get">
+                 <input type="text" name="query" style="float: none; border: 1px solid black;">
+                 <input type="submit" value="Search" style="float: none">
+             </form>
+             <p>This is my blog. I've written <b>{% total_posts %} posts</b> so far</p>
+             {%block sidebar%}{%endblock%}
+             {% get_latest_posts 3 %}
+             <h3>Most commented posts:</h3>
+             {% most_commented_posts 3 as most_commented %}
+             <ul>
+                 {% for post in most_commented %}
+                 <li><a href="{{post.get_absolute_url}}">{{post.title}}</a></li>
+                 {% endfor %}
+             </ul>
+         </div>
+    </body>
+</html>

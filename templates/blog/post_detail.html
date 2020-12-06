@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load blog_tags %}
+{% block title %}{{ post.title }}{% endblock %}
+{%block sidebar%}
+    <h3>Similar posts:</h3>
+    {% if similar_posts %}
+        {% for similar_post in similar_posts %}
+            <ul>
+                <li><a href="{{similar_post.get_absolute_url}}">{{similar_post.title}}</a></li>
+            </ul>
+        {%endfor%}
+    {% else %}
+        <p class="date" style="color:black;">Ops! We couldn't find similar posts</p>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="post">
+        <h1>{{ post.title }}</h1>
+        <p class="date">Published {{ post.publish }} by {{ post.author }}</p>
+        <h4>{{ post.body|markdown }}</h4>
+        {% if post.tags.all %}
+        Tags:
+        {% for tag in post.tags.all %}
+            <a href="{% url 'post_list_by_tag' tag.slug %}">
+                {{ tag.name }}{% if not forloop.last %}, {% endif %}
+            </a>
+        {%endfor%}
+        {% endif %}
+        <p>
+        <a href="{% url 'post_shares' post.id %}">Share this post</a>
+        </p>
+    </div>
+
+    {% with comments.count as total_comments %}
+        <h2>{{ total_comments }} comment{{ total_comments|pluralize }}</h2>
+    {% endwith %}
+    {% for comment in comments %}
+        <div class="comment">
+            <p class="info">
+                Comment {{ forloop.counter }} by {{ comment.name }}
+                {{ comment.created }}
+            </p>
+            {{ comment.body|linebreaks }}
+        </div>
+        {% empty %}
+            <p>There are no comments yet.</p>
+    {% endfor %}
+    {% if new_comment %}
+        <h2>Your comment has been added.</h2>
+    {% else %}
+        <h2>Add a new comment</h2>
+        <form action="{{post.get_absolute_url}}" method="post">
+            {{ comment_form.as_p }}
+            {% csrf_token %}
+            <p><input type="submit" value="Add comment"></p>
+        </form>
+    {% endif %}
+{% endblock content %}
